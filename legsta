@@ -1,0 +1,202 @@
+#!/usr/bin/env perl
+use strict;
+use File::Spec;
+use Data::Dumper;
+use File::Temp qw(tempfile);
+use FindBin;
+#use lib "$FindBin::RealBin/../perl5";
+
+#..............................................................................
+# Globals
+
+my $VERSION = "0.1";
+my $OUTSEP = "\t";
+my $ISPCR = "isPcr";
+my $SEP = "/";
+my $UNK = "-";
+
+#..............................................................................
+# Command line options
+
+my(@Options, $debug, $csv, $datadir);
+setOptions();
+
+#..............................................................................
+# Option parsing
+
+$OUTSEP = ',' if $csv;  # default is tab
+@ARGV or err("Please provide some FASTA files to type");
+require_exe($ISPCR);
+
+#..............................................................................
+# Load databases
+
+my %db;
+my @gene;
+open my $SBT, '<', "$datadir/legionella.txt";
+while (<$SBT>) {
+  chomp;
+  my($type, @profile) = split m/\t/;
+  if ($type eq 'ST') {
+    @gene = @profile;
+  }
+  else {
+    $db{$type} = join($SEP, @profile);
+  }
+}
+msg("Loaded", scalar keys %db, "SBT types.");
+
+my %al;
+for my $g (@gene) {
+  open my $GENE, '<', "$datadir/$g.tfa";
+  my $n;
+  while (my $line = <$GENE>) {
+    chomp $line;
+    if ($line =~ m/(\d+)$/) {
+      $n = $1;
+    }
+    else {
+      $al{$g}{$n} = uc($line);
+      undef $n;
+    }
+  }
+  msg("Loaded", scalar keys %{$al{$g}}, "$g alleles");
+}
+#print Dumper(\%al);
+
+#..............................................................................
+# Run in silico PCR
+
+my %amp;
+
+for my $fasta (@ARGV) {
+  msg("Checking $fasta");
+  open my $ispcr, "-|",  "$ISPCR $fasta $datadir/ispcr.tab stdout -minPerfect=5 -tileSize=6 -maxSize=800 -out=fa";
+  my($id,$seq);
+  while (my $line = <$ispcr>) {
+    chomp $line;
+    if ($line =~ m/^>\S+\s+(\S+)/) {
+      $amp{$id} ||= $seq if $id; # save last seq we saw
+      $id = $1;
+      $seq = '';
+      msg("Amplicon $id found", $amp{$id} ? "again" : "");
+    }
+    else {
+      $seq .= uc($line);
+    }
+  }
+  
+  my @profile;
+  for my $g (@gene) {
+    my $num = $UNK;
+    if (my $hit = $amp{$g}) {
+      msg("Scanning $g database");
+      for my $n (keys %{$al{$g}}) {
+        if ( index($hit, $al{$g}{$n}) >= 0 ) {
+          $num = $n;
+          last;
+        }
+      }
+    }
+    msg("Allele $g = $num");
+    push @profile, $num;
+  }
+  my $p = join($SEP, @profile);
+  
+  my $type = $UNK;
+  for my $t (keys %db) {
+    if ($p eq $db{$t}) {
+      $type = $t;
+      last;
+    }
+  }
+  
+  print join($OUTSEP, $fasta, $type, @profile),"\n";
+}
+
+
+#----------------------------------------------------------------------
+
+sub show_version {
+  my(undef,undef,$exe) = File::Spec->splitpath($0);
+  print "$exe $VERSION\n";
+  exit(0);
+}
+
+#----------------------------------------------------------------------
+
+sub update_db {
+  err("Not implemented yet.");
+}
+
+#----------------------------------------------------------------------
+
+sub msg {
+  print STDERR "@_\n";
+}
+
+#----------------------------------------------------------------------
+
+sub err {
+  msg(@_);
+  exit(1);
+}
+        
+#----------------------------------------------------------------------
+
+sub require_exe {
+  my(@arg) = @_;
+  for my $exe (@arg) {
+    my $where = '';
+    for my $dir ( File::Spec->path ) {
+      if (-x "$dir/$exe") {
+        $where = "$dir/$exe";
+        last;
+      }
+    }
+    if ($where) {
+      msg("Found '$exe' => $where");
+    }
+    else {
+      err("Could not find '$exe'. Please install it and ensure it is in the PATH.");
+    }
+  }
+  return;        
+}
+        
+#----------------------------------------------------------------------
+# Option setting routines
+
+sub setOptions {
+  use Getopt::Long;
+
+  @Options = (
+    {OPT=>"help",     VAR=>\&usage,             DESC=>"This help"},
+    {OPT=>"debug",    VAR=>\$debug, DEFAULT=>0, DESC=>"Verbose debug output to stderr"},
+    {OPT=>"version",  VAR=>\&show_version, DESC=>"Print version and exit"},
+    {OPT=>"dbdir=s",  VAR=>\$datadir, DEFAULT=>"$FindBin::RealBin/db", DESC=>"SBT data"},
+    {OPT=>"update",   VAR=>\&update_db, DESC=>"Update SBT database"},
+    {OPT=>"csv",      VAR=>\$csv, DEFAULT=>0, DESC=>"Output CSV instead of TSV"},
+  );
+
+  &GetOptions(map {$_->{OPT}, $_->{VAR}} @Options) || usage();
+
+  # Now setup default values.
+  foreach (@Options) {
+    if (defined($_->{DEFAULT}) && !defined(${$_->{VAR}})) {
+      ${$_->{VAR}} = $_->{DEFAULT};
+    }
+  }
+}
+
+sub usage {
+  print "Synposis: Legionella in silico SBT typing\n";
+  print "Usage: $0 [options] <contigs.fa> ... \n";
+  foreach (@Options) {
+    printf "  --%-13s %s%s.\n",$_->{OPT},$_->{DESC},
+           defined($_->{DEFAULT}) ? " (default '$_->{DEFAULT}')" : "";
+  }
+  exit(1);
+}
+ 
+#----------------------------------------------------------------------
