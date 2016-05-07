@@ -9,7 +9,7 @@ use FindBin;
 #..............................................................................
 # Globals
 
-my $VERSION = "0.1";
+my $VERSION = "0.2";
 my $OUTSEP = "\t";
 my $ISPCR = "isPcr";
 my $SEP = "/";
@@ -25,15 +25,18 @@ setOptions();
 # Option parsing
 
 $OUTSEP = ',' if $csv;  # default is tab
-@ARGV or err("Please provide some FASTA files to type");
+@ARGV or usage(1); # err("Please provide some FASTA files to type");
 require_exe($ISPCR);
+my $primer_fn = "$datadir/ispcr.tab";
+-r $primer_fn or err("Could not read file: $primer_fn");
 
 #..............................................................................
 # Load databases
 
 my %db;
 my @gene;
-open my $SBT, '<', "$datadir/legionella.txt";
+my $sbt_fn = "$datadir/legionella.txt";
+open my $SBT, '<', $sbt_fn or err("Could not read file: $sbt_fn");
 while (<$SBT>) {
   chomp;
   my($type, @profile) = split m/\t/;
@@ -45,64 +48,52 @@ while (<$SBT>) {
   }
 }
 msg("Loaded", scalar keys %db, "SBT types.");
+print Dumper(\%db) if $debug > 2;
 
 my %al;
 for my $g (@gene) {
-  open my $GENE, '<', "$datadir/$g.tfa";
-  my $n;
-  while (my $line = <$GENE>) {
-    chomp $line;
-    if ($line =~ m/(\d+)$/) {
-      $n = $1;
-    }
-    else {
-      $al{$g}{$n} = uc($line);
-      undef $n;
-    }
-  }
+  my $gene_fn = "$datadir/$g.tfa";
+  open my $gene_fh, '<', $gene_fn or err("Could not open FASTA file: $gene_fn");
+  $al{$g} = load_fasta( $gene_fh, '^.*?_(\d+)' );
   msg("Loaded", scalar keys %{$al{$g}}, "$g alleles");
 }
-#print Dumper(\%al);
+print Dumper(\%al) if $debug > 2;
 
 #..............................................................................
 # Run in silico PCR
 
-my %amp;
+print join($OUTSEP, "FILE", "SBT", @gene), "\n"; # header
 
 for my $fasta (@ARGV) {
-  msg("Checking $fasta");
-  open my $ispcr, "-|",  "$ISPCR $fasta $datadir/ispcr.tab stdout -minPerfect=5 -tileSize=6 -maxSize=800 -out=fa";
-  my($id,$seq);
-  while (my $line = <$ispcr>) {
-    chomp $line;
-    if ($line =~ m/^>\S+\s+(\S+)/) {
-      $amp{$id} ||= $seq if $id; # save last seq we saw
-      $id = $1;
-      $seq = '';
-      msg("Amplicon $id found", $amp{$id} ? "again" : "");
-    }
-    else {
-      $seq .= uc($line);
-    }
-  }
+  msg("Checking $fasta") if $debug;
+
+  # Do in silico PCR against the primer set and collate results
+  my $cmd = "$ISPCR $fasta $primer_fn stdout -minPerfect=6 -tileSize=6 -maxSize=1200 -stepSize=5 -out=fa";
+  msg("Running: $cmd");
+  open my $ispcr, "-|", $cmd;
+  my $amp = load_fasta( $ispcr, '^\S+\s+([A-Za-z]+)' );
+  print Dumper($amp) if $debug > 1;
   
+  # Determine the allele profile
   my @profile;
   for my $g (@gene) {
     my $num = $UNK;
-    if (my $hit = $amp{$g}) {
-      msg("Scanning $g database");
+    if (my $hit = $amp->{$g}) {
+      msg("Scanning $g database") if $debug;
+      # Look for exact substring matches in linear search (db is small)
       for my $n (keys %{$al{$g}}) {
-        if ( index($hit, $al{$g}{$n}) >= 0 ) {
+        if ( index($hit, $al{$g}{$n}) >= 0 ) {  
           $num = $n;
           last;
         }
       }
     }
-    msg("Allele $g = $num");
+    msg("Allele $g => $num") if $debug;
     push @profile, $num;
   }
   my $p = join($SEP, @profile);
   
+  # Look for matching profiles in db
   my $type = $UNK;
   for my $t (keys %db) {
     if ($p eq $db{$t}) {
@@ -111,9 +102,37 @@ for my $fasta (@ARGV) {
     }
   }
   
+  # Print line result
   print join($OUTSEP, $fasta, $type, @profile),"\n";
 }
 
+
+#----------------------------------------------------------------------
+
+sub load_fasta {
+  my($fh, $regexp) = @_;
+  $regexp ||= '(\S+)';  # capture ID
+  my %res;
+  my($id,$seq);
+  while (my $line = <$fh>) {
+    chomp $line;
+    if ($line =~ m/^>(.*)$/) {
+      my $header = $1;
+      $header =~ m/$regexp/ or err("Unmatched sequence header for $regexp: $header");
+      my $new_id = $1;
+      if ($id) {
+        $res{$id} .= $seq; # save last seq we saw
+      }      
+      $id = $new_id;
+      $seq = '';
+    }
+    else {
+      $seq .= uc($line);
+    }
+  }
+  $res{$id} .= $seq if $id && $seq;
+  return \%res;
+}
 
 #----------------------------------------------------------------------
 
@@ -171,15 +190,15 @@ sub setOptions {
   use Getopt::Long;
 
   @Options = (
-    {OPT=>"help",     VAR=>\&usage,             DESC=>"This help"},
-    {OPT=>"debug",    VAR=>\$debug, DEFAULT=>0, DESC=>"Verbose debug output to stderr"},
+    {OPT=>"help",     VAR=>\&usage, DESC=>"This help"},
     {OPT=>"version",  VAR=>\&show_version, DESC=>"Print version and exit"},
-    {OPT=>"dbdir=s",  VAR=>\$datadir, DEFAULT=>"$FindBin::RealBin/db", DESC=>"SBT data"},
-    {OPT=>"update",   VAR=>\&update_db, DESC=>"Update SBT database"},
+    {OPT=>"debug+",    VAR=>\$debug, DEFAULT=>0, DESC=>"Verbose debug output to stderr"},
+    {OPT=>"dbdir=s",  VAR=>\$datadir, DEFAULT=>"$FindBin::RealBin/../db", DESC=>"SBT data"},
+#    {OPT=>"update",   VAR=>\&update_db, DESC=>"Update SBT database"},
     {OPT=>"csv",      VAR=>\$csv, DEFAULT=>0, DESC=>"Output CSV instead of TSV"},
   );
 
-  &GetOptions(map {$_->{OPT}, $_->{VAR}} @Options) || usage();
+  &GetOptions(map {$_->{OPT}, $_->{VAR}} @Options) || usage(1);
 
   # Now setup default values.
   foreach (@Options) {
@@ -190,13 +209,16 @@ sub setOptions {
 }
 
 sub usage {
+  my($errcode) = @_;
+  $errcode ||= 0;
+  my(undef,undef,$exe) = File::Spec->splitpath($0);
   print "Synposis: Legionella in silico SBT typing\n";
-  print "Usage: $0 [options] <contigs.fa> ... \n";
+  print "Usage: $exe [options] <contigs.fa> ... \n";
   foreach (@Options) {
     printf "  --%-13s %s%s.\n",$_->{OPT},$_->{DESC},
            defined($_->{DEFAULT}) ? " (default '$_->{DEFAULT}')" : "";
   }
-  exit(1);
+  exit($errcode);
 }
  
 #----------------------------------------------------------------------
