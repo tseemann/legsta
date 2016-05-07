@@ -4,12 +4,11 @@ use File::Spec;
 use Data::Dumper;
 use File::Temp qw(tempfile);
 use FindBin;
-#use lib "$FindBin::RealBin/../perl5";
 
 #..............................................................................
 # Globals
 
-my $VERSION = "0.2";
+my $VERSION = "0.3";
 my $OUTSEP = "\t";
 my $ISPCR = "isPcr";
 my $SEP = "/";
@@ -26,6 +25,7 @@ setOptions();
 
 $OUTSEP = ',' if $csv;  # default is tab
 @ARGV or usage(1); # err("Please provide some FASTA files to type");
+$ENV{PATH} = $ENV{PATH}.":$FindBin::RealBin";
 require_exe($ISPCR);
 my $primer_fn = "$datadir/ispcr.tab";
 -r $primer_fn or err("Could not read file: $primer_fn");
