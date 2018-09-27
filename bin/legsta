@@ -7,9 +7,10 @@ use FindBin;
 #..............................................................................
 # Globals
 
-my $VERSION = "0.3.1";
+my $VERSION = "0.3.2";
 my $OUTSEP = "\t";
 my $ISPCR = "isPcr";
+my $ISPCR_OPT = "-minPerfect=5 -tileSize=6 -maxSize=1200 -stepSize=5";
 my $SEP = "/";
 my $UNK = "-";
 
@@ -68,7 +69,7 @@ for my $fasta (@ARGV) {
   msg("Checking $fasta") if $debug;
 
   # Do in silico PCR against the primer set and collate results
-  my $cmd = "$ISPCR $fasta $primer_fn stdout -minPerfect=6 -tileSize=6 -maxSize=1200 -stepSize=5 -out=fa";
+  my $cmd = "$ISPCR '$fasta' '$primer_fn' stdout -out=fa $ISPCR_OPT";
   msg("Running: $cmd");
   open my $ispcr, "-|", $cmd;
   my $amp = load_fasta( $ispcr, '^\S+\s+([A-Za-z]+)' );
