@@ -15,8 +15,7 @@ install:
     - "export PATH=$PWD/bin:$PATH"
 
 script:
-    - "isPcr | grep Situ"
-    - "grep --version"
+    - "isPcr 2>&1 | grep Situ"
     - "legsta --version"
     - "legsta --help"
     - "! legsta --doesnotexist"
