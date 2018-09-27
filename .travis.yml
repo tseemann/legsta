@@ -5,6 +5,11 @@ sudo: false
 perl:
     - "5.26"
 
+addons:
+    apt:
+        packages:
+            - multiarch-support
+
 install:
     - "export PATH=$PWD/bin:$PATH"
 
