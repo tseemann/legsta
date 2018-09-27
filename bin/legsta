@@ -2,7 +2,6 @@
 use strict;
 use File::Spec;
 use Data::Dumper;
-use File::Temp qw(tempfile);
 use FindBin;
 
 #..............................................................................
@@ -27,6 +26,7 @@ $OUTSEP = ',' if $csv;  # default is tab
 @ARGV or usage(1); # err("Please provide some FASTA files to type");
 $ENV{PATH} = $ENV{PATH}.":$FindBin::RealBin";
 require_exe($ISPCR);
+system("$ISPCR 2>&1 | grep -- minPerfect")==0 or err("Can not run $ISPCR");
 my $primer_fn = "$datadir/ispcr.tab";
 -r $primer_fn or err("Could not read file: $primer_fn");
 
