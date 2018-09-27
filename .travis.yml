@@ -4,7 +4,10 @@ sudo: false
 
 perl:
     - "5.26"
-    
+
+install:
+    - "export PATH=$PWD/bin:$PATH"
+
 script:
     - "legsta --version"
     - "legsta --help"
