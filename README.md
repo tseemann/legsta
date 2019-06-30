@@ -55,6 +55,10 @@ File problems at our [Issue Tracker](https://github.com/MDU-PHL/legsta/issues)
 
 [GPLv3](https://raw.githubusercontent.com/MDU-PHL/legsta/master/LICENSE)
 
+## Acknowledgements
+
+* [Natalie Groves](@grovesn) for providing the latest sequences and profiles from the PHE database
+
 ## References
 
 * [Public Health England - *L.pneumophila* SBT Home Page](http://bioinformatics.phe.org.uk/legionella/legionella_sbt/php/sbt_homepage.php)
