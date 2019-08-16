@@ -8,7 +8,6 @@ In silico *Legionella pneumophila* Sequence Based Typing (SBT)
 
 ## Background
 
-
 SBT stands for sequence-based typing.  The purpose of the 
 *Legionella pneumophila* SBT scheme is to provide a rapid and easily comparable method
 for the epidemiological typing of clinical and environmental isolates of
@@ -16,14 +15,18 @@ for the epidemiological typing of clinical and environmental isolates of
 
 ## Install
 
+### Conda
+```
+conda install -c bioconda legsta
+```
+### Homebrew
+```
+brew install brewsci/bio/legsta
+```
+### Github
 ```
 cd $HOME
-git clone https://github.com/MDU-PHL/legsta.git
-```
-
-## Test
-
-```
+git clone https://github.com/tseemann/legsta.git
 cd $HOME/legsta/test
 ../bin/legsta *.fna
 ```
@@ -43,7 +46,7 @@ NC_018140.fna   734     2       6       17      1       1       8       11
 
 ## Issues
 
-File problems at our [Issue Tracker](https://github.com/MDU-PHL/legsta/issues)
+File problems at our [Issue Tracker](https://github.com/tseemann/legsta/issues)
 
 ## Authors
 
@@ -53,7 +56,7 @@ File problems at our [Issue Tracker](https://github.com/MDU-PHL/legsta/issues)
 
 ## Licence
 
-[GPLv3](https://raw.githubusercontent.com/MDU-PHL/legsta/master/LICENSE)
+[GPLv3](https://raw.githubusercontent.com/tseemann/legsta/master/LICENSE)
 
 ## Acknowledgements
 
