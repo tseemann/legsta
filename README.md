@@ -17,7 +17,7 @@ for the epidemiological typing of clinical and environmental isolates of
 
 ### Conda
 ```
-conda install -c bioconda legsta
+conda install -c conda-forge -c bioconda -c defaults legsta
 ```
 ### Homebrew
 ```
