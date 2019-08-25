@@ -68,7 +68,8 @@ print Dumper(\%al) if $debug > 2;
 print join($OUTSEP, "FILE", "SBT", @gene), "\n"; # header
 
 for my $fasta (@ARGV) {
-  msg("Checking $fasta") if $debug;
+  -r $fasta or err("Could not read file: $fasta");
+  msg("Genotyping $fasta") if $debug;
 
   # Do in silico PCR against the primer set and collate results
   my $cmd = "$ISPCR '$fasta' '$primer_fn' stdout -out=fa $ISPCR_OPT";
