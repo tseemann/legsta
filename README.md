@@ -51,6 +51,7 @@ File problems at our [Issue Tracker](https://github.com/tseemann/legsta/issues)
 ## Authors
 
 * Torsten Seemann
+* Anders Goncalves Da Silva
 * Andrew Buultjens
 * Jason Kwong
 
