@@ -19,8 +19,8 @@ script:
     - "legsta --version"
     - "legsta --help"
     - "! legsta --doesnotexist"
-    - "legsta test/NC_006368.fna"
-    - "legsta test/NC_018140.fna"
+    - legsta test/NC_006368.fna
     - legsta test/NC_006368.fna | grep -P "1\t1\t4\t3\t1\t1\t1"
     - legsta test/NC_018140.fna | grep -P "734\t2\t6\t17\t1\t1\t8"
-
+    - legsta --csv test/NC_018140.fna | grep -P "2,6,17"
+    - legsta test/missing_flaA.fna | grep -P "\t-\t"
