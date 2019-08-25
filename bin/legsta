@@ -3,6 +3,7 @@ use strict;
 use File::Spec;
 use Data::Dumper;
 use FindBin;
+use Cwd 'abs_path';
 
 #..............................................................................
 # Globals
@@ -18,6 +19,7 @@ my $UNK = "-";
 # Command line options
 
 my(@Options, $debug, $csv, $datadir);
+$datadir = abs_path("$FindBin::RealBin/../db");
 setOptions();
 
 #..............................................................................
@@ -193,8 +195,8 @@ sub setOptions {
   @Options = (
     {OPT=>"help",     VAR=>\&usage, DESC=>"This help"},
     {OPT=>"version",  VAR=>\&show_version, DESC=>"Print version and exit"},
-    {OPT=>"debug+",    VAR=>\$debug, DEFAULT=>0, DESC=>"Verbose debug output to stderr"},
-    {OPT=>"dbdir=s",  VAR=>\$datadir, DEFAULT=>"$FindBin::RealBin/../db", DESC=>"SBT data"},
+    {OPT=>"debug+",   VAR=>\$debug, DEFAULT=>0, DESC=>"Verbose debug output to stderr"},
+    {OPT=>"dbdir=s",  VAR=>\$datadir, DEFAULT=>$datadir, DESC=>"SBT database folder"},
 #    {OPT=>"update",   VAR=>\&update_db, DESC=>"Update SBT database"},
     {OPT=>"csv",      VAR=>\$csv, DEFAULT=>0, DESC=>"Output CSV instead of TSV"},
   );
