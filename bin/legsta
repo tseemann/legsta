@@ -8,7 +8,7 @@ use Cwd 'abs_path';
 #..............................................................................
 # Globals
 
-my $VERSION = "0.3.5";
+my $VERSION = "0.3.6";
 my $OUTSEP = "\t";
 my $ISPCR = "isPcr";
 my $ISPCR_OPT = "-minPerfect=5 -tileSize=6 -maxSize=1200 -stepSize=5";
@@ -18,7 +18,7 @@ my $UNK = "-";
 #..............................................................................
 # Command line options
 
-my(@Options, $debug, $csv, $datadir);
+my(@Options, $debug, $csv, $datadir, $quiet);
 $datadir = abs_path("$FindBin::RealBin/../db");
 setOptions();
 
@@ -154,7 +154,7 @@ sub update_db {
 #----------------------------------------------------------------------
 
 sub msg {
-  print STDERR "@_\n";
+  print STDERR "@_\n" unless $quiet;
 }
 
 #----------------------------------------------------------------------
@@ -195,6 +195,7 @@ sub setOptions {
   @Options = (
     {OPT=>"help",     VAR=>\&usage, DESC=>"This help"},
     {OPT=>"version",  VAR=>\&show_version, DESC=>"Print version and exit"},
+    {OPT=>"quiet",    VAR=>\$quiet, DESC=>"Don't print anything to stderr"},
     {OPT=>"debug+",   VAR=>\$debug, DEFAULT=>0, DESC=>"Verbose debug output to stderr"},
     {OPT=>"dbdir=s",  VAR=>\$datadir, DEFAULT=>$datadir, DESC=>"SBT database folder"},
 #    {OPT=>"update",   VAR=>\&update_db, DESC=>"Update SBT database"},
