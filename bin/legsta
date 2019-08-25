@@ -1,6 +1,7 @@
 #!/usr/bin/env perl
 use strict;
 use File::Spec;
+use File::Basename;
 use Data::Dumper;
 use FindBin;
 use Cwd 'abs_path';
@@ -8,7 +9,8 @@ use Cwd 'abs_path';
 #..............................................................................
 # Globals
 
-my $VERSION = "0.3.6";
+my $VERSION = "0.3.7";
+my $URL = "https://github.com/tseemann/legsta";
 my $OUTSEP = "\t";
 my $ISPCR = "isPcr";
 my $ISPCR_OPT = "-minPerfect=5 -tileSize=6 -maxSize=1200 -stepSize=5";
@@ -216,13 +218,18 @@ sub setOptions {
 sub usage {
   my($errcode) = @_;
   $errcode ||= 0;
-  my(undef,undef,$exe) = File::Spec->splitpath($0);
-  print "Synposis: Legionella in silico SBT typing\n";
-  print "Usage: $exe [options] <contigs.fa> ... \n";
+  my $fh = $errcode ? \*STDOUT : \*STDERR;
+  select $fh;
+  my $exe = basename($0);
+  print "NAME\n  $exe $VERSION\n";
+  print "SYNPOSIS\n  Legionella in silico SBT typing of contig sequences\n";
+  print "USAGE\n  $exe [options] <contigs.fa> ... \n";
+  print "OPTIONS\n";
   foreach (@Options) {
-    printf "  --%-13s %s%s.\n",$_->{OPT},$_->{DESC},
+    printf "  --%-10s %s%s.\n",$_->{OPT},$_->{DESC},
            defined($_->{DEFAULT}) ? " (default '$_->{DEFAULT}')" : "";
   }
+  print "HOMEPAGE\n  $URL\n";
   exit($errcode);
 }
  
