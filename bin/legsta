@@ -7,7 +7,7 @@ use FindBin;
 #..............................................................................
 # Globals
 
-my $VERSION = "0.3.4";
+my $VERSION = "0.3.5";
 my $OUTSEP = "\t";
 my $ISPCR = "isPcr";
 my $ISPCR_OPT = "-minPerfect=5 -tileSize=6 -maxSize=1200 -stepSize=5";
@@ -27,7 +27,7 @@ $OUTSEP = ',' if $csv;  # default is tab
 @ARGV or usage(1); # err("Please provide some FASTA files to type");
 $ENV{PATH} = $ENV{PATH}.":$FindBin::RealBin";
 require_exe($ISPCR);
-system("$ISPCR 2>&1 | grep -- minPerfect")==0 or err("Can not run $ISPCR");
+system("$ISPCR 2>&1 | grep --silent minPerfect")==0 or err("Can not run $ISPCR");
 my $primer_fn = "$datadir/ispcr.tab";
 -r $primer_fn or err("Could not read file: $primer_fn");
 
