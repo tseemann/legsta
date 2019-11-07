@@ -39,14 +39,23 @@ NC_006368.fna   1       1       4       3       1       1       1       1
 NC_018140.fna   734     2       6       17      1       1       8       11
 ```
 
+## Options
+
+Option        | Description
+--------------|-------------------------------------------------------------
+`--quiet`     | do not print any informational messages to stderr
+`--csv`       | comma-separated output instead of tab-separated
+`--noheader`  | don't print table header to output (ie. `FILE SBT flaA ...`) 
+`--version`   | print `legsta X.Y.Z` version to stdout and exit
+
 ## Dependencies
 
-* Perl 5.x
+* Perl >= 5.16
 * isPcr - [Linux](http://hgwdev.cse.ucsc.edu/~kent/exe/linux/isPcr.zip) | [Mac](http://hgwdev.cse.ucsc.edu/~kent/exe/macIntel/isPcr.zip) | [Source](https://users.soe.ucsc.edu/~kent/src/isPcr.zip)
 
 ## Issues
 
-File problems at our [Issue Tracker](https://github.com/tseemann/legsta/issues)
+Submit questions or issues to our [Issue Tracker](https://github.com/tseemann/legsta/issues)
 
 ## Authors
 
