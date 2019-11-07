@@ -9,7 +9,7 @@ use Cwd 'abs_path';
 #..............................................................................
 # Globals
 
-my $VERSION = "0.3.7";
+my $VERSION = "0.4.0";
 my $URL = "https://github.com/tseemann/legsta";
 my $OUTSEP = "\t";
 my $ISPCR = "isPcr";
@@ -20,7 +20,7 @@ my $UNK = "-";
 #..............................................................................
 # Command line options
 
-my(@Options, $debug, $csv, $datadir, $quiet);
+my(@Options, $debug, $csv, $datadir, $quiet, $noheader);
 $datadir = abs_path("$FindBin::RealBin/../db");
 setOptions();
 
@@ -67,7 +67,8 @@ print Dumper(\%al) if $debug > 2;
 #..............................................................................
 # Run in silico PCR
 
-print join($OUTSEP, "FILE", "SBT", @gene), "\n"; # header
+# header
+print join($OUTSEP, "FILE", "SBT", @gene), "\n" unless $noheader;
 
 for my $fasta (@ARGV) {
   -r $fasta or err("Could not read file: $fasta");
@@ -203,6 +204,7 @@ sub setOptions {
     {OPT=>"dbdir=s",  VAR=>\$datadir, DEFAULT=>$datadir, DESC=>"SBT database folder"},
 #    {OPT=>"update",   VAR=>\&update_db, DESC=>"Update SBT database"},
     {OPT=>"csv",      VAR=>\$csv, DEFAULT=>0, DESC=>"Output CSV instead of TSV"},
+    {OPT=>"noheader", VAR=>\$noheader, DEFAULT=>0, DESC=>"Don't print header row"},
   );
 
   &GetOptions(map {$_->{OPT}, $_->{VAR}} @Options) || usage(1);
