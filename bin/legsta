@@ -54,7 +54,7 @@ while (<$SBT>) {
   }
 }
 msg("Loaded", scalar keys %db, "SBT types.");
-print Dumper(\%db) if $debug > 2;
+print STDERR Dumper(\%db) if $debug > 2;
 
 my %al;
 for my $g (@gene) {
@@ -63,7 +63,7 @@ for my $g (@gene) {
   $al{$g} = load_fasta( $gene_fh, '^.*?_(\d+)' );
   msg("Loaded", scalar keys %{$al{$g}}, "$g alleles");
 }
-print Dumper(\%al) if $debug > 2;
+print STDERR Dumper(\%al) if $debug > 2;
 
 #..............................................................................
 # Run in silico PCR
@@ -81,7 +81,7 @@ for my $fasta (@ARGV) {
   msg("Running: $cmd");
   open my $ispcr, "-|", $cmd;
   my $amp = load_fasta( $ispcr, '^\S+\s+([A-Za-z]+)' );
-  print Dumper($amp) if $debug > 1;
+  print STDERR Dumper($amp) if $debug > 1;
   
   # Determine the allele profile
   my @profile;
