@@ -9,7 +9,7 @@ use Cwd 'abs_path';
 #..............................................................................
 # Globals
 
-my $VERSION = "0.4.0";
+my $VERSION = "0.4.1";
 my $URL = "https://github.com/tseemann/legsta";
 my $OUTSEP = "\t";
 my $ISPCR = "isPcr";
@@ -122,6 +122,7 @@ sub load_fasta {
   my %res;
   my($id,$seq);
   while (my $line = <$fh>) {
+    print STDERR "DEBUG: $line" if $debug;
     chomp $line;
     if ($line =~ m/^>(.*)$/) {
       my $header = $1;
