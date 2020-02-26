@@ -9,7 +9,7 @@ use Cwd 'abs_path';
 #..............................................................................
 # Globals
 
-my $VERSION = "0.4.1";
+my $VERSION = "0.4.2";
 my $URL = "https://github.com/tseemann/legsta";
 my $OUTSEP = "\t";
 my $ISPCR = "isPcr";
@@ -72,6 +72,7 @@ print join($OUTSEP, "FILE", "SBT", @gene), "\n" unless $noheader;
 
 for my $fasta (@ARGV) {
   -r $fasta or err("Could not read file: $fasta");
+  -s $fasta or err("Empty FASTA file? $fasta");
   msg("Genotyping $fasta") if $debug;
 
   # Do in silico PCR against the primer set and collate results
@@ -165,7 +166,7 @@ sub msg {
 #----------------------------------------------------------------------
 
 sub err {
-  msg(@_);
+  msg("ERROR:", @_);
   exit(1);
 }
         

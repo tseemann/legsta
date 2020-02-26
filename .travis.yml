@@ -26,3 +26,5 @@ script:
     - legsta --csv test/NC_018140.fna | grep -P "2,6,17"
     - legsta test/missing_flaA.fna | grep -P "\t-\t"
     - "! (legsta --quiet test/NC_006368.fna |& grep Loaded)"
+    - "legsta /dev/null 2>&1 | grep ERROR"
+
