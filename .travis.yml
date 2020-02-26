@@ -30,3 +30,4 @@ script:
     - "! (legsta --quiet test/NC_006368.fna |& grep Loaded)"
     - "legsta /dev/null 2>&1 | grep ERROR"
     - legsta test/CR628336.1.gbk.gz | grep -P "1\t1\t4\t3\t1\t1\t1\t1"
+    - legsta test/FJBS01000000.fna.bz2 | grep -F '?'

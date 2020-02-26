@@ -41,15 +41,20 @@ The files may also be compressed with gzip, bzip2 or zip.
 ## Output
 
 Output is a TSV file (or CSV if `--csv` is used).
+Alleles with no _in silico_ product are denoted `-`
+and novel alleles listed using `?`.
+
 ```
 % cd legsta/test
-% ../bin/legsta NC_006368.fna NC_018140.fna CR628336.1.gbk.gz
+% ../bin/legsta NC_006368.fna NC_018140.fna CR628336.1.gbk.gz missing_flaA.fna FJBS01000000.fna.bz2
 
 
-FILE  		     SBT     flaA    pilE    asd     mip     mompS   proA    neuA
-NC_006368.fna        1       1       4       3       1       1       1       1
-NC_018140.fna        734     2       6       17      1       1       8       11
-CR628336.1.gbk.gz    1       1       4       3       1       1       1       1
+FILE  		       SBT     flaA    pilE    asd     mip     mompS   proA    neuA
+NC_006368.fna          1       1       4       3       1       1       1       1
+NC_018140.fna          734     2       6       17      1       1       8       11
+CR628336.1.gbk.gz      1       1       4       3       1       1       1       1
+missing_flaA.fna       -       -       14      16      25      7       13      206
+FJBS01000000.fna.bz2   -       3       10      1       3       14      9       ?
 
 ```
 
