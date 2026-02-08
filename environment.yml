@@ -1,0 +1,13 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - perl >=5.32
+  - any2fasta
+  - ispcr
+  - seqkit
+  - make
+  - bats-core
+
+
+

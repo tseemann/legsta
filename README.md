@@ -1,6 +1,8 @@
-[![Build Status](https://travis-ci.org/tseemann/legsta.svg?branch=master)](https://travis-ci.org/tseemann/legsta)
+[![CI](https://github.com/tseemann/legsta/workflows/CI/badge.svg)](https://github.com/tseemann/legsta/actions)
+[![GitHub release](https://img.shields.io/github/release/tseemann/legsta.svg)](https://github.com/tseemann/legsta/releases)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-![Don't judge me](https://img.shields.io/badge/Language-Perl_5-steelblue.svg)
+[![Conda](https://img.shields.io/conda/dn/bioconda/legsta.svg)](https://anaconda.org/bioconda/legsta)
+[![Language: Perl 5](https://img.shields.io/badge/Language-Perl%205-blue.svg)](https://www.perl.org/)
 
 # legsta
 
@@ -15,20 +17,8 @@ for the epidemiological typing of clinical and environmental isolates of
 
 ## Install
 
-### Conda
 ```
 conda install -c conda-forge -c bioconda -c defaults legsta
-```
-### Homebrew
-```
-brew install brewsci/bio/legsta
-```
-### Github
-```
-cd $HOME
-git clone https://github.com/tseemann/legsta.git
-cd $HOME/legsta/test
-../bin/legsta *.fna *.gbk
 ```
 
 ## Input
